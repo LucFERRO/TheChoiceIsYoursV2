@@ -1,8 +1,8 @@
 import { Application } from "express"
-import { ApiException } from "../types/exception"
-import { userTypes } from "../types/template"
+import { ApiException } from "../../types/exception"
+import { userTypes } from "../../types/user"
 
-const { User } = require('../database/connect')
+const { User } = require('../../database/connect')
   
 /**
   * @openapi
@@ -18,22 +18,22 @@ const { User } = require('../database/connect')
   *         default: 1
   *      responses:
   *        200:
-  *          description: Returns a mysterious string.
+  *          description: Get the user of given id.
   */
 module.exports = (app : Application) => {
   app.get('/api/users/:id', (req, res) => {
     User.findByPk(req.params.id)
       .then((user : userTypes )=> {
         if (user === null){
-          const message = "Le user demandé n'existe pas. Réessayer avec un autre identifiant."
+          const message = "Requested user does not exist."
           return res.status(404).json({message})
         }
 
-        const message : string = 'Un utilisateur a bien été trouvé.'
+        const message : string = 'User found.'
         res.json({ message, data: user })
       })
       .catch((error : ApiException ) => {
-        const message = "Le user demander n'a pas pu être récuperer. Réessayer dans quelques instants."
+        const message = "Cannot find user."
         res.status(500).json({message, data: error})
       })
   })

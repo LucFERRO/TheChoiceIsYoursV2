@@ -1,8 +1,8 @@
 import { Application } from "express";
-import { ApiException } from "../types/exception";
-import { Wow } from "../types/template";
+import { ApiException } from "../../types/exception";
+import { userTypes } from "../../types/user";
 
-const { User } = require('../database/connect')
+const { User } = require('../../database/connect')
   
 
 /**
@@ -18,14 +18,14 @@ const { User } = require('../database/connect')
   *         type: integer
   *      responses:
   *        200:
-  *          description: Returns a mysterious string. 
+  *          description: Delete an user. 
   */
 module.exports = (app :Application) => {
   app.delete('/api/users/:id', (req, res) => {
-    User.findByPk(req.params.id).then((user: Wow) => {
+    User.findByPk(req.params.id).then((user: userTypes) => {
       if (user === null){
-        const message = "Le user demandé n'existe pas. Réessayer avec un autre identifiant."
-        return res.status(404).json({message})
+        const message = "Requested user does not exist."
+        return res.status(404).json({message : message})
       }
 
       const userDeleted = user;
@@ -33,12 +33,12 @@ module.exports = (app :Application) => {
         where: { id: user.id }
       })
       .then(() => {
-        const message = `L'utilisateur avec l'identifiant n°${userDeleted.id} a bien été supprimé.`
+        const message = `User ${userDeleted.id} successfully deleted.`
         res.json({message, data: userDeleted })
       })
     })
     .catch((error: ApiException) => {
-      const message = `L'utilisateur' n'a pas pu être supprimé. Réessayer dans quelques instants.`;
+      const message = `Could not delete user.`;
       res.status(500).json({ message, data: error });
     });
   })
